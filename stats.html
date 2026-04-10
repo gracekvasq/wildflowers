@@ -37,10 +37,23 @@ h1 {
   margin: auto;
 }
 
+/* SEARCH */
+.search-box {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.search-box input {
+  padding: 10px;
+  width: 250px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+}
+
+/* TABLE */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
   background: white;
   border-radius: 10px;
   overflow: hidden;
@@ -54,14 +67,28 @@ th, td {
 th {
   background: #2d5a27;
   color: white;
+  cursor: pointer;
 }
 
 tr:nth-child(even) {
   background: #f4f4f4;
 }
 
-.leader {
-  background: #e8c97a !important;
+/* LEADER CARDS */
+.leaders {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.card {
+  background: #e8c97a;
+  padding: 15px;
+  border-radius: 10px;
+  margin: 10px;
+  text-align: center;
+  min-width: 120px;
   font-weight: bold;
 }
 </style>
@@ -77,19 +104,32 @@ tr:nth-child(even) {
 <h1>🌸 Wildflowers Team Stats</h1>
 
 <div class="container">
+
+  <!-- LEADERS -->
+  <div class="leaders" id="leaders"></div>
+
+  <!-- SEARCH -->
+  <div class="search-box">
+    <input type="text" id="search" placeholder="Search player...">
+  </div>
+
+  <!-- TABLE -->
   <table id="statsTable">
     <thead>
       <tr>
-        <th>Player</th>
-        <th>AB</th>
-        <th>H</th>
-        <th>BB</th>
-        <th>AVG</th>
-        <th>OBP</th>
+        <th onclick="sortTable('name')">Player</th>
+        <th onclick="sortTable('AB')">AB</th>
+        <th onclick="sortTable('H')">H</th>
+        <th onclick="sortTable('BB')">BB</th>
+        <th onclick="sortTable('AVG')">AVG</th>
+        <th onclick="sortTable('OBP')">OBP</th>
+        <th onclick="sortTable('SLG')">SLG</th>
+        <th onclick="sortTable('OPS')">OPS</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
+
 </div>
 
 <script src="stats.js"></script>
