@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Wildflowers Stats</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Nunito",sans-serif;background:#f5f7f5;color:#2a2a2a;min-height:100vh}
+:root{--green:#2d5a27;--green-lt:#3f7a38;--green-dk:#1a3615;--sage:#7a9e6f;--gold:#c9973a;--wheat:#e8c97a;--cream:#fdf8f0;--bark:#3a2a1e}
+
+/* HEADER */
+.site-header{background:linear-gradient(135deg,var(–green-dk),var(–green));padding:1.5rem 2rem;display:flex;align-items:center;gap:1rem;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.site-header h1{font-family:“Playfair Display”,serif;font-size:1.6rem;color:var(–wheat);font-weight:900}
+.site-header p{font-size:.82rem;color:rgba(255,255,255,.65);margin-top:.15rem}
+.header-icon{font-size:2rem}
+
+/* TABS */
+.tab-bar{display:flex;background:white;border-bottom:2px solid #eee;padding:0 2rem;gap:.25rem;overflow-x:auto}
+.tab{padding:1rem 1.5rem;font-family:“Nunito”,sans-serif;font-weight:800;font-size:.88rem;color:#999;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .2s}
+.tab.active{color:var(–green);border-bottom-color:var(–green)}
+.tab:hover{color:var(–green)}
+
+/* PANELS */
+.panel{display:none;padding:2rem;max-width:1100px;margin:0 auto}
+.panel.active{display:block}
+
+/* CARDS */
+.card{background:white;border-radius:20px;padding:2rem;box-shadow:0 2px 20px rgba(0,0,0,.06);margin-bottom:1.5rem}
+.card-title{font-family:“Playfair Display”,serif;font-size:1.3rem;font-weight:700;color:var(–bark);margin-bottom:1.25rem;display:flex;align-items:center;gap:.6rem}
+
+/* SIGN IN */
+.signin-wrap{min-height:60vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+.signin-box{background:white;border-radius:24px;padding:3rem;text-align:center;box-shadow:0 4px 40px rgba(0,0,0,.08);max-width:420px;width:100%}
+.signin-box h2{font-family:“Playfair Display”,serif;font-size:1.6rem;color:var(–bark);margin-bottom:.5rem}
+.signin-box p{font-size:.9rem;color:#888;margin-bottom:1.75rem;line-height:1.6}
+.btn-signin{display:inline-flex;align-items:center;gap:.6rem;background:linear-gradient(135deg,var(–green),var(–green-lt));color:white;border:none;padding:1rem 2rem;border-radius:50px;font-family:“Nunito”,sans-serif;font-weight:800;font-size:1rem;cursor:pointer;transition:transform .18s,box-shadow .18s;width:100%;justify-content:center}
+.btn-signin:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(45,90,39,.3)}
+
+/* COACH LOGIN */
+.coach-login{max-width:400px;margin:3rem auto}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:.75rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(–green);margin-bottom:.4rem}
+.field input,.field select{width:100%;padding:.8rem 1rem;border:2px solid #e8e8e8;border-radius:12px;font-family:“Nunito”,sans-serif;font-size:.95rem;color:var(–bark);outline:none;transition:border-color .2s;background:white}
+.field input:focus,.field select:focus{border-color:var(–green)}
+.btn-primary{background:linear-gradient(135deg,var(–green),var(–green-lt));color:white;border:none;padding:.9rem 2rem;border-radius:50px;font-family:“Nunito”,sans-serif;font-weight:800;font-size:.95rem;cursor:pointer;width:100%;transition:transform .18s,box-shadow .18s;margin-top:.5rem}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(45,90,39,.3)}
+.btn-secondary{background:white;color:var(–green);border:2px solid var(–green);padding:.8rem 2rem;border-radius:50px;font-family:“Nunito”,sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;transition:all .18s}
+.btn-secondary:hover{background:var(–green);color:white}
+.btn-danger{background:#fee2e2;color:#dc2626;border:none;padding:.6rem 1.2rem;border-radius:50px;font-family:“Nunito”,sans-serif;font-weight:800;font-size:.8rem;cursor:pointer;transition:all .18s}
+.btn-danger:hover{background:#dc2626;color:white}
+.btn-small{background:linear-gradient(135deg,var(–green),var(–green-lt));color:white;border:none;padding:.5rem 1.1rem;border-radius:50px;font-family:“Nunito”,sans-serif;font-weight:800;font-size:.8rem;cursor:pointer;transition:transform .18s}
+.btn-small:hover{transform:translateY(-1px)}
+
+/* PLAYER SELECTOR */
+.player-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.75rem;margin-bottom:1.5rem}
+.player-btn{background:var(–cream);border:2px solid #e0e0e0;border-radius:14px;padding:.9rem .5rem;text-align:center;cursor:pointer;transition:all .2s;font-family:“Nunito”,sans-serif}
+.player-btn:hover{border-color:var(–green);background:#eef5eb}
+.player-btn.selected{border-color:var(–green);background:var(–green);color:white}
+.player-btn.selected .pb-num{color:var(–wheat)}
+.player-btn.selected .pb-name{color:white}
+.pb-num{font-family:“Playfair Display”,serif;font-size:1.2rem;font-weight:900;color:var(–green)}
+.pb-name{font-size:.75rem;font-weight:800;color:var(–bark);margin-top:.2rem}
+.pb-pos{font-size:.62rem;color:#999;margin-top:.1rem}
+
+/* STATS FORM */
+.stats-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-top:1rem}
+.stat-field{background:#f8fdf8;border-radius:14px;padding:1rem;border:2px solid #e8f0e8}
+.stat-field label{display:block;font-size:.68rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(–green);margin-bottom:.5rem}
+.stat-field input{width:100%;padding:.6rem .8rem;border:2px solid #ddd;border-radius:10px;font-family:“Nunito”,sans-serif;font-size:1.1rem;font-weight:800;color:var(–bark);text-align:center;outline:none;transition:border-color .2s;background:white}
+.stat-field input:focus{border-color:var(–green)}
+.stat-field .stat-avg{font-size:1.4rem;font-weight:900;color:var(–green);text-align:center;padding:.4rem 0}
+
+/* STATS TABLE */
+.stats-table{width:100%;border-collapse:collapse;font-size:.88rem}
+.stats-table th{background:var(–green);color:white;padding:.75rem 1rem;text-align:left;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:900}
+.stats-table th:first-child{border-radius:10px 0 0 0}
+.stats-table th:last-child{border-radius:0 10px 0 0}
+.stats-table td{padding:.8rem 1rem;border-bottom:1px solid #f0f0f0;color:var(–bark);font-weight:600}
+.stats-table tr:hover td{background:#f8fdf8}
+.stats-table .avg-cell{font-weight:900;color:var(–green);font-size:.95rem}
+.stats-table .player-name{font-weight:800;font-family:“Playfair Display”,serif}
+.stats-table .num-cell{color:var(–sage);font-weight:800}
+.no-data{text-align:center;padding:3rem;color:#bbb}
+.no-data div{font-size:2.5rem;margin-bottom:.75rem}
+
+/* GAME SELECTOR */
+.game-tabs{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.game-tab{padding:.4rem 1rem;border-radius:50px;border:2px solid #ddd;background:white;color:#999;font-family:“Nunito”,sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .18s}
+.game-tab.active{background:var(–green);border-color:var(–green);color:white}
+.game-tab:hover{border-color:var(–green);color:var(–green)}
+
+/* PARENT STATS */
+.parent-player-header{background:linear-gradient(135deg,var(–green),var(–green-lt));border-radius:20px;padding:2rem;color:white;text-align:center;margin-bottom:1.5rem}
+.parent-player-header h2{font-family:“Playfair Display”,serif;font-size:2rem;font-style:italic;color:var(–wheat)}
+.parent-player-header p{color:rgba(255,255,255,.7);margin-top:.3rem}
+.stat-highlight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1rem;margin-bottom:1.5rem}
+.stat-highlight{background:white;border-radius:16px;padding:1.25rem;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.stat-highlight .sh-val{font-family:“Playfair Display”,serif;font-size:2rem;font-weight:900;color:var(–green)}
+.stat-highlight .sh-label{font-size:.68rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#999;margin-top:.3rem}
+.stat-highlight.highlight-avg .sh-val{color:var(–gold)}
+
+/* CHILD PICKER */
+.child-picker{background:white;border-radius:24px;padding:2.5rem;text-align:center;box-shadow:0 4px 40px rgba(0,0,0,.08);max-width:480px;margin:2rem auto}
+.child-picker h3{font-family:“Playfair Display”,serif;font-size:1.4rem;color:var(–bark);margin-bottom:.5rem}
+.child-picker p{color:#888;font-size:.88rem;margin-bottom:1.5rem}
+.child-picker select{width:100%;padding:.9rem 1rem;border:2px solid #e8e8e8;border-radius:12px;font-family:“Nunito”,sans-serif;font-size:1rem;color:var(–bark);outline:none;margin-bottom:1rem;background:white}
+
+/* GAME HISTORY TABLE */
+.game-history{overflow-x:auto}
+
+/* ALERTS */
+.alert{padding:.85rem 1.2rem;border-radius:12px;font-size:.85rem;font-weight:700;margin-bottom:1rem;display:none}
+.alert.show{display:block}
+.alert-success{background:#eef5eb;color:var(–green);border:1px solid #c0ddc0}
+.alert-error{background:#fee2e2;color:#dc2626;border:1px solid #fca5a5}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(–green);color:white;padding:1rem 1.5rem;border-radius:14px;font-weight:800;font-size:.88rem;z-index:300;transform:translateY(100px);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:.5rem;box-shadow:0 8px 24px rgba(45,90,39,.35);max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* SECTION LABEL */
+.sec-label{font-size:.68rem;font-weight:900;letter-spacing:.3em;text-transform:uppercase;color:var(–green-lt);margin-bottom:.4rem}
+.divider{width:40px;height:3px;background:linear-gradient(90deg,var(–green),var(–wheat));border-radius:2px;margin:.75rem 0 1.25rem}
+
+/* LOGOUT */
+.logout-bar{display:flex;align-items:center;justify-content:space-between;background:#f8fdf8;border-radius:12px;padding:.75rem 1.25rem;margin-bottom:1.5rem;font-size:.85rem;color:var(–green);font-weight:700;border:1px solid #d0e8d0}
+
+@media(max-width:600px){
+.stats-form{grid-template-columns:1fr 1fr}
+.panel{padding:1rem}
+.card{padding:1.25rem}
+.site-header h1{font-size:1.3rem}
+}
+</style>
+
+</head>
+<body>
+
+<div class="site-header">
+  <div class="header-icon">&#127800;</div>
+  <div>
+    <h1>Wildflowers Softball Stats</h1>
+    <p>2026 Season &mdash; Utopia, TX</p>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab active" id="tab-coach" onclick="showTab('coach')">&#128274; Coach Portal</button>
+  <button class="tab" id="tab-parent" onclick="showTab('parent')">&#128106; Parent Portal</button>
+  <button class="tab" id="tab-leaderboard" onclick="showTab('leaderboard')">&#127942; Team Stats</button>
+</div>
+
+<!-- ══ COACH PANEL ══════════════════════════════════════ -->
+
+<div class="panel active" id="panel-coach">
+
+  <!-- Step 1: Password -->
+
+  <div id="coachLoginSection">
+    <div class="coach-login">
+      <div class="card">
+        <div class="card-title">&#128274; Coach Login</div>
+        <div id="coachAlert" class="alert"></div>
+        <div class="field">
+          <label>Coach Password</label>
+          <input type="password" id="coachPassword" placeholder="Enter coach password" onkeydown="if(event.key==='Enter')coachPasswordCheck()"/>
+        </div>
+        <button class="btn-primary" onclick="coachPasswordCheck()">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Google Sign In -->
+
+  <div id="coachSignInSection" style="display:none;">
+    <div class="signin-wrap">
+      <div class="signin-box">
+        <div style="font-size:3rem;margin-bottom:1rem">&#9917;</div>
+        <h2>Coach Portal</h2>
+        <p>Sign in with your Google account to enter and manage player stats. Stats are saved directly to your Google Sheet.</p>
+        <button class="btn-signin" onclick="signIn('coach')">&#128274; Sign in with Google</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Dashboard -->
+
+  <div id="coachDashboard" style="display:none;">
+    <div class="logout-bar">
+      <span>&#9989; Signed in as <strong id="coachUserEmail"></strong></span>
+      <button class="btn-danger" onclick="logout()">Sign Out</button>
+    </div>
+
+```
+<div class="card">
+  <div class="card-title">&#128197; Select Game</div>
+  <div id="gameTabs"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">&#127800; Select Player</div>
+  <div class="player-grid" id="playerGrid"></div>
+</div>
+
+<div class="card" id="statsForm" style="display:none;">
+  <div class="card-title">&#128221; Enter Stats &mdash; <span id="statsFormTitle"></span></div>
+  <div class="stats-form">
+    <div class="stat-field">
+      <label>At Bats</label>
+      <input type="number" id="stat-ab" min="0" placeholder="0" oninput="updateAvgDisplay()"/>
+    </div>
+    <div class="stat-field">
+      <label>Hits</label>
+      <input type="number" id="stat-h" min="0" placeholder="0" oninput="updateAvgDisplay()"/>
+    </div>
+    <div class="stat-field">
+      <label>Runs</label>
+      <input type="number" id="stat-r" min="0" placeholder="0"/>
+    </div>
+    <div class="stat-field">
+      <label>Strikeouts</label>
+      <input type="number" id="stat-so" min="0" placeholder="0"/>
+    </div>
+    <div class="stat-field">
+      <label>Walks</label>
+      <input type="number" id="stat-bb" min="0" placeholder="0"/>
+    </div>
+    <div class="stat-field" style="border-color:var(--gold);">
+      <label style="color:var(--gold);">Batting Avg</label>
+      <div class="stat-avg" id="stat-avg-display" style="font-size:1.6rem;font-weight:900;color:var(--gold);text-align:center;padding:.4rem 0">.000</div>
+    </div>
+  </div>
+  <div style="margin-top:1.25rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+    <button class="btn-primary" style="max-width:200px;" onclick="saveStats()">&#128190; Save to Google Sheets</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">&#127942; Season Leaderboard</div>
+  <div style="overflow-x:auto;">
+    <table class="stats-table">
+      <thead>
+        <tr>
+          <th>#</th><th>Player</th><th>No.</th>
+          <th>AB</th><th>H</th><th>R</th><th>SO</th><th>BB</th><th>AVG</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboardBody">
+        <tr><td colspan="9" class="no-data"><div>&#127800;</div>No stats yet &mdash; select a player and enter stats above!</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ══ PARENT PANEL ══════════════════════════════════════ -->
+
+<div class="panel" id="panel-parent">
+
+  <!-- Sign In -->
+
+  <div id="parentSignIn">
+    <div class="signin-wrap">
+      <div class="signin-box">
+        <div style="font-size:3rem;margin-bottom:1rem">&#127800;</div>
+        <h2>Parent Portal</h2>
+        <p>Sign in with your Google account to view your child&rsquo;s stats for the 2026 season. Your child will be linked to your account on first sign-in.</p>
+        <button class="btn-signin" onclick="signIn('parent')">&#128247; Sign in with Google</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+
+  <div id="parentDashboard" style="display:none;">
+    <div class="logout-bar">
+      <span>&#9989; Signed in as <strong id="parentUserEmail"></strong></span>
+      <button class="btn-danger" onclick="logout()">Sign Out</button>
+    </div>
+
+```
+<!-- Child Picker (first time) -->
+<div id="childPickerWrap" style="display:none;">
+  <div class="child-picker">
+    <div style="font-size:2.5rem;margin-bottom:.75rem">&#127800;</div>
+    <h3>Who is your child?</h3>
+    <p>Select your player below. This will be saved to your account so you only have to do this once!</p>
+    <select id="childSelect">
+      <option value="">Select your child...</option>
+    </select>
+    <button class="btn-primary" onclick="selectChild()">&#127800; Connect My Account</button>
+  </div>
+</div>
+
+<!-- Stats View -->
+<div id="parentStatsWrap" style="display:none;">
+  <div class="parent-player-header">
+    <div style="font-size:2.5rem;margin-bottom:.5rem">&#127800;</div>
+    <h2 id="parentPlayerName"></h2>
+    <p id="parentPlayerNum"></p>
+  </div>
+
+  <div class="sec-label">Season Totals</div>
+  <div class="divider"></div>
+  <div class="stat-highlight-grid">
+    <div class="stat-highlight highlight-avg">
+      <div class="sh-val" id="pstat-avg">.000</div>
+      <div class="sh-label">Batting Avg</div>
+    </div>
+    <div class="stat-highlight">
+      <div class="sh-val" id="pstat-ab">0</div>
+      <div class="sh-label">At Bats</div>
+    </div>
+    <div class="stat-highlight">
+      <div class="sh-val" id="pstat-h">0</div>
+      <div class="sh-label">Hits</div>
+    </div>
+    <div class="stat-highlight">
+      <div class="sh-val" id="pstat-r">0</div>
+      <div class="sh-label">Runs</div>
+    </div>
+    <div class="stat-highlight">
+      <div class="sh-val" id="pstat-so">0</div>
+      <div class="sh-label">Strikeouts</div>
+    </div>
+    <div class="stat-highlight">
+      <div class="sh-val" id="pstat-bb">0</div>
+      <div class="sh-label">Walks</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">&#128197; Game by Game</div>
+    <div class="game-history">
+      <table class="stats-table">
+        <thead>
+          <tr><th>Game</th><th>AB</th><th>H</th><th>R</th><th>SO</th><th>BB</th><th>AVG</th></tr>
+        </thead>
+        <tbody id="gameHistoryBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:1rem;">
+    <button class="btn-secondary" onclick="changeChild()">&#8635; Change Player</button>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ══ LEADERBOARD PANEL ═════════════════════════════════ -->
+
+<div class="panel" id="panel-leaderboard">
+  <div class="card">
+    <div class="card-title">&#127942; 2026 Season &mdash; Team Stats</div>
+    <p style="font-size:.85rem;color:#888;margin-bottom:1.25rem;">Sorted by batting average. Sign in as a coach to enter stats.</p>
+    <div style="overflow-x:auto;">
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Rank</th><th>Player</th><th>No.</th>
+            <th>AB</th><th>H</th><th>R</th><th>SO</th><th>BB</th><th>AVG</th>
+          </tr>
+        </thead>
+        <tbody id="publicLeaderboardBody">
+          <tr><td colspan="9" class="no-data"><div>&#127800;</div>Stats will appear here once the coach enters them!</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">&#9989; <span></span></div>
+
+<script>
+
+var CID = "514465494343-99m0sudgh675lc1jiu6nlv4iob8pa2b4.apps.googleusercontent.com";
+var SHEET_ID = "13-2Hy958xCwlK62kh6JUYjm7GsSSSQjBSeXH-LWLkd4";
+var COACH_PASS = "Wildflowers2026";
+var SCOPE = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets";
+var PLAYERS = ["Cheney", "Ryann", "Charlotte", "Riley", "Roxy", "Kenadie", "Ryder", "Ever", "Isabella"];
+var PLAYER_NUMS = {"Cheney": "1", "Ryann": "2", "Charlotte": "3", "Riley": "4", "Roxy": "5", "Kenadie": "6", "Ryder": "7", "Ever": "8", "Isabella": "9"};
+var PLAYER_POS = {"Cheney": "2nd Base", "Ryann": "Short Stop", "Charlotte": "Left Field", "Riley": "3rd Base", "Roxy": "Catcher", "Kenadie": "Injured", "Ryder": "Right Field", "Ever": "1st Base", "Isabella": "Pitcher"};
+
+var token = null;
+var userEmail = null;
+var currentMode = null; // 'coach' or 'parent'
+var selectedPlayer = null;
+var currentGame = "Game 1";
+var parentChild = null;
+var allStats = {}; // {game: {player: {ab,h,r,so,bb}}}
+
+// ── OAUTH ─────────────────────────────────────────────────
+function signIn(mode) {
+  currentMode = mode;
+  try { sessionStorage.setItem("wf_mode", mode); } catch(e) {}
+  window.location.href = "https://accounts.google.com/o/oauth2/v2/auth"
+    + "?client_id=" + encodeURIComponent(CID)
+    + "&redirect_uri=" + encodeURIComponent(location.origin + location.pathname)
+    + "&response_type=token"
+    + "&scope=" + encodeURIComponent(SCOPE)
+    + "&include_granted_scopes=true";
+}
+
+function checkToken() {
+  if (!location.hash) return;
+  var p = {};
+  location.hash.replace(/^#/,"").split("&").forEach(function(s){
+    var a = s.split("="); p[decodeURIComponent(a[0])] = decodeURIComponent(a[1]||"");
+  });
+  if (p.access_token) {
+    token = p.access_token;
+    history.replaceState(null,"",location.pathname);
+    try { currentMode = sessionStorage.getItem("wf_mode") || "parent"; } catch(e) { currentMode = "parent"; }
+    getUserEmail();
+  }
+}
+
+function getUserEmail() {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET","https://www.googleapis.com/oauth2/v3/userinfo");
+  xhr.setRequestHeader("Authorization","Bearer "+token);
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      var info = JSON.parse(xhr.responseText);
+      userEmail = info.email;
+      if (currentMode === "coach") {
+        showCoachDashboard();
+      } else {
+        showParentDashboard();
+      }
+    }
+  };
+  xhr.send();
+}
+
+// ── TABS ──────────────────────────────────────────────────
+function showTab(id) {
+  document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("active"); });
+  document.querySelectorAll(".panel").forEach(function(p){ p.classList.remove("active"); });
+  document.getElementById("tab-"+id).classList.add("active");
+  document.getElementById("panel-"+id).classList.add("active");
+}
+
+// ── COACH LOGIN ───────────────────────────────────────────
+function coachPasswordCheck() {
+  var pw = document.getElementById("coachPassword").value;
+  if (pw === COACH_PASS) {
+    document.getElementById("coachLoginSection").style.display = "none";
+    document.getElementById("coachSignInSection").style.display = "block";
+  } else {
+    showAlert("coachAlert","Incorrect password. Please try again.","error");
+  }
+}
+
+// ── COACH DASHBOARD ───────────────────────────────────────
+function showCoachDashboard() {
+  document.getElementById("coachLoginSection").style.display = "none";
+  document.getElementById("coachSignInSection").style.display = "none";
+  document.getElementById("coachDashboard").style.display = "block";
+  document.getElementById("coachUserEmail").textContent = userEmail;
+  loadAllStats();
+  buildPlayerGrid();
+  buildGameTabs();
+}
+
+function buildPlayerGrid() {
+  var grid = document.getElementById("playerGrid");
+  grid.innerHTML = "";
+  PLAYERS.forEach(function(p) {
+    var btn = document.createElement("div");
+    btn.className = "player-btn";
+    btn.setAttribute("data-player", p);
+    btn.innerHTML = '<div class="pb-num">#'+PLAYER_NUMS[p]+'</div>'
+      +'<div class="pb-name">'+p+'</div>'
+      +'<div class="pb-pos">'+PLAYER_POS[p]+'</div>';
+    btn.onclick = function() {
+      document.querySelectorAll(".player-btn").forEach(function(b){ b.classList.remove("selected"); });
+      btn.classList.add("selected");
+      selectedPlayer = p;
+      loadPlayerStats(p);
+    };
+    grid.appendChild(btn);
+  });
+}
+
+function buildGameTabs() {
+  var games = ["Game 1","Game 2","Game 3","Game 4","Game 5","Game 6","Game 7","Game 8"];
+  var container = document.getElementById("gameTabs");
+  container.innerHTML = "";
+  games.forEach(function(g, i) {
+    var btn = document.createElement("button");
+    btn.className = "game-tab" + (i===0?" active":"");
+    btn.textContent = g;
+    btn.onclick = function() {
+      document.querySelectorAll(".game-tab").forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      currentGame = g;
+      if (selectedPlayer) loadPlayerStats(selectedPlayer);
+    };
+    container.appendChild(btn);
+  });
+}
+
+function loadPlayerStats(player) {
+  var stats = (allStats[currentGame] && allStats[currentGame][player]) || {ab:0,h:0,r:0,so:0,bb:0};
+  document.getElementById("stat-ab").value = stats.ab || "";
+  document.getElementById("stat-h").value = stats.h || "";
+  document.getElementById("stat-r").value = stats.r || "";
+  document.getElementById("stat-so").value = stats.so || "";
+  document.getElementById("stat-bb").value = stats.bb || "";
+  updateAvgDisplay();
+  document.getElementById("statsForm").style.display = "block";
+  document.getElementById("statsFormTitle").textContent = player + " — " + currentGame;
+}
+
+function updateAvgDisplay() {
+  var ab = parseFloat(document.getElementById("stat-ab").value)||0;
+  var h  = parseFloat(document.getElementById("stat-h").value)||0;
+  var avg = ab > 0 ? (h/ab).toFixed(3).replace("0.","."): ".000";
+  document.getElementById("stat-avg-display").textContent = avg;
+}
+
+function saveStats() {
+  if (!selectedPlayer) { showToast("Please select a player first!"); return; }
+  var stats = {
+    ab: parseFloat(document.getElementById("stat-ab").value)||0,
+    h:  parseFloat(document.getElementById("stat-h").value)||0,
+    r:  parseFloat(document.getElementById("stat-r").value)||0,
+    so: parseFloat(document.getElementById("stat-so").value)||0,
+    bb: parseFloat(document.getElementById("stat-bb").value)||0
+  };
+  if (!allStats[currentGame]) allStats[currentGame] = {};
+  allStats[currentGame][selectedPlayer] = stats;
+  writeToSheet(function() {
+    showToast("Stats saved for "+selectedPlayer+"!");
+    buildLeaderboard();
+  });
+}
+
+// ── GOOGLE SHEETS ─────────────────────────────────────────
+function loadAllStats() {
+  if (!token) return;
+  var url = "https://sheets.googleapis.com/v4/spreadsheets/"+SHEET_ID+"/values/Stats!A1:Z200";
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", url);
+  xhr.setRequestHeader("Authorization","Bearer "+token);
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      var data = JSON.parse(xhr.responseText);
+      parseSheetData(data.values || []);
+      buildLeaderboard();
+      if (currentMode === "parent" && parentChild) showParentStats();
+    } else {
+      // Sheet might be empty - initialize it
+      initSheet();
+    }
+  };
+  xhr.onerror = function(){ showToast("Network error loading stats."); };
+  xhr.send();
+}
+
+function initSheet() {
+  var headers = [["Game","Player","AB","H","R","SO","BB","AVG"]];
+  var url = "https://sheets.googleapis.com/v4/spreadsheets/"+SHEET_ID+"/values/Stats!A1:H1?valueInputOption=RAW";
+  var xhr = new XMLHttpRequest();
+  xhr.open("PUT", url);
+  xhr.setRequestHeader("Authorization","Bearer "+token);
+  xhr.setRequestHeader("Content-Type","application/json");
+  xhr.onload = function(){ buildLeaderboard(); };
+  xhr.send(JSON.stringify({values: headers}));
+}
+
+function parseSheetData(rows) {
+  allStats = {};
+  if (rows.length < 2) return;
+  // Skip header row
+  for (var i = 1; i < rows.length; i++) {
+    var row = rows[i];
+    if (!row || row.length < 7) continue;
+    var game = row[0]; var player = row[1];
+    if (!game || !player) continue;
+    if (!allStats[game]) allStats[game] = {};
+    allStats[game][player] = {
+      ab: parseFloat(row[2])||0,
+      h:  parseFloat(row[3])||0,
+      r:  parseFloat(row[4])||0,
+      so: parseFloat(row[5])||0,
+      bb: parseFloat(row[6])||0
+    };
+  }
+}
+
+function writeToSheet(callback) {
+  // Build all rows from allStats
+  var rows = [["Game","Player","AB","H","R","SO","BB","AVG"]];
+  Object.keys(allStats).forEach(function(game) {
+    Object.keys(allStats[game]).forEach(function(player) {
+      var s = allStats[game][player];
+      var avg = s.ab > 0 ? (s.h/s.ab).toFixed(3) : "0.000";
+      rows.push([game, player, s.ab, s.h, s.r, s.so, s.bb, avg]);
+    });
+  });
+  var url = "https://sheets.googleapis.com/v4/spreadsheets/"+SHEET_ID+"/values/Stats!A1:H"+rows.length+"?valueInputOption=RAW";
+  var xhr = new XMLHttpRequest();
+  xhr.open("PUT", url);
+  xhr.setRequestHeader("Authorization","Bearer "+token);
+  xhr.setRequestHeader("Content-Type","application/json");
+  xhr.onload = function() {
+    if (xhr.status === 200) { if(callback) callback(); }
+    else { showToast("Error saving to Sheet. Check permissions."); }
+  };
+  xhr.onerror = function(){ showToast("Network error saving stats."); };
+  xhr.send(JSON.stringify({range:"Stats!A1:H"+rows.length, majorDimension:"ROWS", values:rows}));
+}
+
+// ── LEADERBOARD ───────────────────────────────────────────
+function buildLeaderboard() {
+  var totals = {};
+  PLAYERS.forEach(function(p){
+    totals[p] = {ab:0,h:0,r:0,so:0,bb:0};
+  });
+  Object.keys(allStats).forEach(function(game) {
+    Object.keys(allStats[game]).forEach(function(player) {
+      if (!totals[player]) totals[player] = {ab:0,h:0,r:0,so:0,bb:0};
+      var s = allStats[game][player];
+      totals[player].ab += s.ab||0;
+      totals[player].h  += s.h||0;
+      totals[player].r  += s.r||0;
+      totals[player].so += s.so||0;
+      totals[player].bb += s.bb||0;
+    });
+  });
+
+  var tbody = document.getElementById("leaderboardBody");
+  tbody.innerHTML = "";
+  var sorted = PLAYERS.slice().sort(function(a,b){
+    var avgA = totals[a].ab>0 ? totals[a].h/totals[a].ab : 0;
+    var avgB = totals[b].ab>0 ? totals[b].h/totals[b].ab : 0;
+    return avgB - avgA;
+  });
+  sorted.forEach(function(p, idx) {
+    var s = totals[p];
+    var avg = s.ab > 0 ? (s.h/s.ab).toFixed(3).replace("0.",".") : ".000";
+    var tr = document.createElement("tr");
+    tr.innerHTML = '<td style="font-weight:900;color:var(--sage)">'+(idx+1)+'</td>'
+      +'<td class="player-name">'+p+'</td>'
+      +'<td class="num-cell">#'+PLAYER_NUMS[p]+'</td>'
+      +'<td>'+s.ab+'</td>'
+      +'<td>'+s.h+'</td>'
+      +'<td>'+s.r+'</td>'
+      +'<td>'+s.so+'</td>'
+      +'<td>'+s.bb+'</td>'
+      +'<td class="avg-cell">'+avg+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// ── PARENT DASHBOARD ──────────────────────────────────────
+function showParentDashboard() {
+  document.getElementById("parentSignIn").style.display = "none";
+  document.getElementById("parentDashboard").style.display = "block";
+  document.getElementById("parentUserEmail").textContent = userEmail;
+  // Check localStorage for saved child
+  try {
+    var saved = localStorage.getItem("wf_child_"+userEmail);
+    if (saved && PLAYERS.indexOf(saved) >= 0) {
+      parentChild = saved;
+      loadAllStats();
+      return;
+    }
+  } catch(e) {}
+  // Show child picker
+  document.getElementById("childPickerWrap").style.display = "block";
+  document.getElementById("parentStatsWrap").style.display = "none";
+}
+
+function selectChild() {
+  var sel = document.getElementById("childSelect").value;
+  if (!sel) { showToast("Please select a player!"); return; }
+  parentChild = sel;
+  try { localStorage.setItem("wf_child_"+userEmail, parentChild); } catch(e) {}
+  document.getElementById("childPickerWrap").style.display = "none";
+  loadAllStats();
+}
+
+function changeChild() {
+  parentChild = null;
+  try { localStorage.removeItem("wf_child_"+userEmail); } catch(e) {}
+  document.getElementById("childPickerWrap").style.display = "block";
+  document.getElementById("parentStatsWrap").style.display = "none";
+}
+
+function showParentStats() {
+  if (!parentChild) return;
+  document.getElementById("childPickerWrap").style.display = "none";
+  document.getElementById("parentStatsWrap").style.display = "block";
+  document.getElementById("parentPlayerName").textContent = parentChild;
+  document.getElementById("parentPlayerNum").textContent = "#"+PLAYER_NUMS[parentChild]+" • "+PLAYER_POS[parentChild];
+
+  // Calculate totals
+  var totals = {ab:0,h:0,r:0,so:0,bb:0};
+  Object.keys(allStats).forEach(function(game) {
+    if (allStats[game][parentChild]) {
+      var s = allStats[game][parentChild];
+      totals.ab += s.ab||0; totals.h += s.h||0;
+      totals.r  += s.r||0;  totals.so += s.so||0; totals.bb += s.bb||0;
+    }
+  });
+  var avg = totals.ab > 0 ? (totals.h/totals.ab).toFixed(3).replace("0.",".") : ".000";
+
+  document.getElementById("pstat-avg").textContent = avg;
+  document.getElementById("pstat-ab").textContent = totals.ab;
+  document.getElementById("pstat-h").textContent = totals.h;
+  document.getElementById("pstat-r").textContent = totals.r;
+  document.getElementById("pstat-so").textContent = totals.so;
+  document.getElementById("pstat-bb").textContent = totals.bb;
+
+  // Game by game table
+  var tbody = document.getElementById("gameHistoryBody");
+  tbody.innerHTML = "";
+  var games = ["Game 1","Game 2","Game 3","Game 4","Game 5","Game 6","Game 7","Game 8"];
+  var hasAny = false;
+  games.forEach(function(g) {
+    if (allStats[g] && allStats[g][parentChild]) {
+      hasAny = true;
+      var s = allStats[g][parentChild];
+      var gavg = s.ab > 0 ? (s.h/s.ab).toFixed(3).replace("0.",".") : ".000";
+      var tr = document.createElement("tr");
+      tr.innerHTML = '<td style="font-weight:800;">'+g+'</td>'
+        +'<td>'+s.ab+'</td><td>'+s.h+'</td><td>'+s.r+'</td>'
+        +'<td>'+s.so+'</td><td>'+s.bb+'</td>'
+        +'<td class="avg-cell">'+gavg+'</td>';
+      tbody.appendChild(tr);
+    }
+  });
+  if (!hasAny) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:#bbb;">No stats entered yet for '+parentChild+'</td></tr>';
+  }
+}
+
+// ── HELPERS ───────────────────────────────────────────────
+function showAlert(id, msg, type) {
+  var el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = "alert alert-"+type+" show";
+  setTimeout(function(){ el.classList.remove("show"); }, 3500);
+}
+
+function showToast(msg) {
+  var t = document.getElementById("toast");
+  t.querySelector("span").textContent = msg;
+  t.classList.add("show");
+  setTimeout(function(){ t.classList.remove("show"); }, 4000);
+}
+
+function logout() {
+  token = null; userEmail = null; currentMode = null;
+  location.reload();
+}
+
+// ── CHILD SELECT BUILDER ──────────────────────────────────
+(function buildChildSelect() {
+  var sel = document.getElementById("childSelect");
+  PLAYERS.forEach(function(p) {
+    var opt = document.createElement("option");
+    opt.value = p; opt.textContent = p+" (#"+PLAYER_NUMS[p]+")";
+    sel.appendChild(opt);
+  });
+})();
+
+checkToken();
+
+
+// Also populate public leaderboard when tab is clicked
+document.getElementById("tab-leaderboard").addEventListener("click", function() {
+  var tbody = document.getElementById("publicLeaderboardBody");
+  var src = document.getElementById("leaderboardBody");
+  tbody.innerHTML = src.innerHTML || '<tr><td colspan="9" class="no-data"><div>&#127800;</div>Stats will appear here once the coach enters them!</td></tr>';
+});
+</script>
+
+</body>
+</html>
